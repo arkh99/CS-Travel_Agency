@@ -19,8 +19,7 @@ internal class Program
             Console.WriteLine("3. Change an existing itinerary");
             Console.WriteLine("4. Exit");
             Console.Write("\nEnter a choice: ");
-            bool validChoice = int.TryParse(Console.ReadLine(), out int choice);
-            if (validChoice && (choice > 0 && choice < 5))
+            if (int.TryParse(Console.ReadLine(), out int choice))
             {
                 switch (choice)
                 {
@@ -36,11 +35,14 @@ internal class Program
                     case 4:
                         Console.WriteLine("Thank you for using Algonquin College Student Travel Agency!");
                         return;
+                    default:
+                        Console.WriteLine("Invalid input. Please enter a number from 1 to 4.");
+                        break;
                 }
             }
             else
             {
-                Console.WriteLine("Enter a valid input");
+                Console.WriteLine("Invalid input. Please enter a number from 1 to 4.");
             }
         }
     }
@@ -49,7 +51,7 @@ internal class Program
     {
         if (itineraries.Count == 0)
         {
-            Console.WriteLine("No itinerary exists in the system.");
+            Console.WriteLine("No itineraries exist in the system.");
         }
         else
         {
@@ -96,9 +98,7 @@ internal class Program
             }
 
             Console.Write($"Select the itinerary number to change (1-{itineraries.Count}): ");
-            bool validIndex = int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= itineraries.Count;
-
-            if (validIndex)
+            if (int.TryParse(Console.ReadLine(), out int index) && index > 0 && index <= itineraries.Count)
             {
                 var itinerary = itineraries[index - 1];
                 Console.WriteLine($"Changing itinerary for {itinerary.PassengerName}");
@@ -106,7 +106,6 @@ internal class Program
                 string newArrivalCity = GetResponse("Enter new arrival city: ");
 
                 itinerary.ChangeItinerary(newDepartureCity, newArrivalCity);
-                Console.WriteLine($"Itinerary changed successfully. Change fee applied: {Itinerary.ChangeFee:C}");
             }
             else
             {
@@ -121,7 +120,7 @@ internal class Program
 
     static string GetResponse(string request)
     {
-        string? response = null;
+        string response = null;
 
         while (string.IsNullOrWhiteSpace(response))
         {

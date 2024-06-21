@@ -1,84 +1,86 @@
-﻿namespace TravelAgency;
+﻿using System;
 
-public class Itinerary
+namespace TravelAgency
 {
-  public static double ChangeFee { get; } = 50.0;
-  public static double TicketFee { get; } = 500.0;
+    public class Itinerary
+    {
+        public static double ChangeFee { get; } = 50.0;
+        public static double TicketFee { get; } = 500.0;
 
-  public string PassengerName { get; }
+        public string PassengerName { get; }
 
-  private string departureCity = string.Empty;
-  public string DepartureCity 
-  {
-      get { return departureCity; }
-      private set 
-			{ 
-        if (string.IsNullOrWhiteSpace(value)) 
+        private string departureCity = string.Empty;
+        public string DepartureCity
         {
-          throw new Exception("Departure city can not be empty!");
-        } 
-        
-        departureCity = value.Trim();
-      }
-  }
+            get { return departureCity; }
+            private set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentNullException(nameof(value), "Departure city cannot be empty!");
+                }
 
-  private string arrivalCity = string.Empty;
-  public string ArrivalCity
-  {
-      get { return arrivalCity; }
-      private set
-      {
-          if (string.IsNullOrWhiteSpace(value)) 
-					{
-						throw new Exception("Arriving city can not be empty!");
-					}
+                departureCity = value.Trim();
+            }
+        }
 
-          if (value.ToUpper() == departureCity.ToUpper()) 
-					{
-						throw new Exception("Arriving city can not be the same as departure city!");
-					}
+        private string arrivalCity = string.Empty;
+        public string ArrivalCity
+        {
+            get { return arrivalCity; }
+            private set
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    throw new ArgumentNullException(nameof(value), "Arrival city cannot be empty!");
+                }
 
-          arrivalCity = value.Trim();
-      }
-  }
+                if (string.Equals(value.Trim(), DepartureCity, StringComparison.OrdinalIgnoreCase))
+                {
+                    throw new ArgumentException("Arrival city cannot be the same as departure city!", nameof(value));
+                }
 
-  public double Cost { get; private set; }
+                arrivalCity = value.Trim();
+            }
+        }
 
-  public Itinerary(string passengerName, string departureCity, string arrivalCity)
-  {
-      PassengerName = string.IsNullOrWhiteSpace(passengerName) ? throw new Exception("Passenger name can not be empty!") : passengerName;
-      DepartureCity = departureCity;
-      ArrivalCity = arrivalCity;
+        public double Cost { get; private set; }
 
-      Cost = TicketFee;
-  }
+        public Itinerary(string passengerName, string departureCity, string arrivalCity)
+        {
+            PassengerName = string.IsNullOrWhiteSpace(passengerName) ? throw new ArgumentNullException(nameof(passengerName), "Passenger name cannot be empty!") : passengerName;
+            DepartureCity = departureCity;
+            ArrivalCity = arrivalCity;
 
-  public void ChangeItinerary(string newDepartureCity, string newArrivalCity)
-  {
-      if (newDepartureCity.Trim().ToUpper() == DepartureCity.ToUpper()
-          && newArrivalCity.Trim().ToUpper() == ArrivalCity.ToUpper())
-      {
-          throw new Exception("New itinerary is the same as old itinerary, no change made!");
-      }
+            Cost = TicketFee;
+        }
 
-      //save current itinerary in case something goes wrong.
-      string oldDepartureCity = DepartureCity;
-      string oldArrivalCity = ArrivalCity;
+        public void ChangeItinerary(string newDepartureCity, string newArrivalCity)
+        {
+            if (string.Equals(newDepartureCity.Trim(), DepartureCity, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(newArrivalCity.Trim(), ArrivalCity, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("New itinerary is the same as the old itinerary. No change made.");
+            }
 
-      try
-      {
-          DepartureCity = newDepartureCity;
-          ArrivalCity = newArrivalCity;
+            string oldDepartureCity = DepartureCity;
+            string oldArrivalCity = ArrivalCity;
 
-          Cost += ChangeFee;
-      }
-      catch (Exception)
-      {
-          //Unable to save the new itineary, restore the current itinerary.
-          DepartureCity = oldDepartureCity;
-          ArrivalCity = oldArrivalCity;
+            try
+            {
+                DepartureCity = newDepartureCity;
+                ArrivalCity = newArrivalCity;
 
-          throw;
-      }
-  }
+                Cost += ChangeFee;
+
+                Console.WriteLine($"Itinerary changed successfully. Change fee applied: {ChangeFee:C}. Total cost: {Cost:C}");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error changing itinerary: {ex.Message}");
+                DepartureCity = oldDepartureCity;
+                ArrivalCity = oldArrivalCity;
+            }
+        }
+    }
 }
